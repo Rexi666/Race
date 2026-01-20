@@ -1,0 +1,4 @@
+name: Race
+version: '1.0'
+main: org.rexi.race.Race
+api-version: '1.21'
