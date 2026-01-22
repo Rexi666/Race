@@ -1,4 +1,5 @@
 name: Race
-version: '1.0'
+version: '${version}'
 main: org.rexi.race.Race
 api-version: '1.21'
+author: Rexi666
