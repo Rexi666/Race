@@ -71,7 +71,7 @@ public class DatabaseManager implements Listener {
                 return rs.getString("chosen_race");
             }
         }
-        return null;
+        return "NONE";
     }
 
     public void close() {
@@ -86,7 +86,11 @@ public class DatabaseManager implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        Race.getInstance().getPlayerRaceFromDB(event.getPlayer());
+        Player player = event.getPlayer();
+        Race plugin = Race.getInstance();
+
+        plugin.loadPlayerRaceFromDB(player);
+        plugin.applyRacePermissions(player);
     }
 
     @EventHandler
