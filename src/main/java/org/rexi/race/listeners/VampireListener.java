@@ -1,5 +1,7 @@
 package org.rexi.race.listeners;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -22,6 +24,7 @@ public class VampireListener implements Listener {
         );
 
         player.setHealth(newHealth);
+        player.sendMessage(Component.text("Te has curado al absorber la sangre de tu enemigo.").color(NamedTextColor.DARK_RED));
     }
 
     @EventHandler

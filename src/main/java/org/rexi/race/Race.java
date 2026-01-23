@@ -9,7 +9,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.rexi.race.listeners.Tasks.VampireNightTask;
+import org.rexi.race.commands.RaceCommand;
+import org.rexi.race.listeners.AssassinListener;
+import org.rexi.race.listeners.TankListener;
+import org.rexi.race.listeners.Tasks.RacesTasks;
 import org.rexi.race.listeners.VampireListener;
 import org.rexi.race.listeners.WizardListener;
 import org.rexi.race.utils.DatabaseManager;
@@ -47,11 +50,18 @@ public final class Race extends JavaPlugin implements Listener {
         Bukkit.getPluginManager().registerEvents(this, this);
         Bukkit.getPluginManager().registerEvents(new VampireListener(), this);
         Bukkit.getPluginManager().registerEvents(new WizardListener(), this);
+        Bukkit.getPluginManager().registerEvents(new AssassinListener(), this);
+        Bukkit.getPluginManager().registerEvents(new TankListener(), this);
+
+        // COMANDOS
+        RaceCommand raceCommand = new RaceCommand(this);
+        this.getCommand("race").setExecutor(raceCommand);
+        this.getCommand("race").setTabCompleter(raceCommand);
 
         // TASKS
         Bukkit.getScheduler().runTaskTimer(
                 this,
-                new VampireNightTask(),
+                new RacesTasks(),
                 0L,
                 200L // cada 10 segundos
         );
@@ -86,6 +96,8 @@ public final class Race extends JavaPlugin implements Listener {
 
     // vampire
     // wizard
+    // assassin
+    // tank
 
     public void loadPlayerRaceFromDB(Player player) {
         try {

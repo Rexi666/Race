@@ -3,3 +3,13 @@ version: '${version}'
 main: org.rexi.race.Race
 api-version: '1.21'
 author: Rexi666
+
+commands:
+  race:
+    description: Main command
+    usage: /race set <player> <race>
+
+permissions:
+  race.admin:
+    description: Admin permission
+    default: op
