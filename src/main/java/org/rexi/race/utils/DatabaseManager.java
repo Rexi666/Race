@@ -83,18 +83,4 @@ public class DatabaseManager implements Listener {
             plugin.getLogger().severe("Error closing database connection: " + e.getMessage());
         }
     }
-
-    @EventHandler
-    public void onJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
-        Race plugin = Race.getInstance();
-
-        plugin.loadPlayerRaceFromDB(player);
-        plugin.applyRacePermissions(player);
-    }
-
-    @EventHandler
-    public void onQuit(PlayerQuitEvent event) {
-        Race.getInstance().playerRace.remove(event.getPlayer().getUniqueId());
-    }
 }

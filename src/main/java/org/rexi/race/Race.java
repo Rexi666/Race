@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -15,6 +16,8 @@ import org.rexi.race.listeners.TankListener;
 import org.rexi.race.listeners.Tasks.RacesTasks;
 import org.rexi.race.listeners.VampireListener;
 import org.rexi.race.listeners.WizardListener;
+import org.rexi.race.menu.RaceMenu;
+import org.rexi.race.menu.RaceMenuListener;
 import org.rexi.race.utils.DatabaseManager;
 
 import java.sql.SQLException;
@@ -52,6 +55,7 @@ public final class Race extends JavaPlugin implements Listener {
         Bukkit.getPluginManager().registerEvents(new WizardListener(), this);
         Bukkit.getPluginManager().registerEvents(new AssassinListener(), this);
         Bukkit.getPluginManager().registerEvents(new TankListener(), this);
+        Bukkit.getPluginManager().registerEvents(new RaceMenuListener(this), this);
 
         // COMANDOS
         RaceCommand raceCommand = new RaceCommand(this);
@@ -115,25 +119,44 @@ public final class Race extends JavaPlugin implements Listener {
     public void applyRacePermissions(Player player) {
 
         // Limpiar permisos anteriores
-        PermissionAttachment old = Race.getInstance().racePermissions.remove(player.getUniqueId());
+        PermissionAttachment old = racePermissions.remove(player.getUniqueId());
         if (old != null) {
             player.removeAttachment(old);
         }
 
-        String race = Race.getInstance().getPlayerRace(player);
+        String race = getPlayerRace(player);
         if (race == null || !race.equalsIgnoreCase("wizard")) return;
 
         PermissionAttachment attachment = player.addAttachment(this);
 
         attachment.setPermission("race.wizard", true);
-        Race.getInstance().racePermissions.put(player.getUniqueId(), attachment);
+        racePermissions.put(player.getUniqueId(), attachment);
     }
 
     @EventHandler
-    public void onQuit(PlayerQuitEvent event) { // JOIN EN DB
+    public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
 
-        PermissionAttachment attachment = Race.getInstance().racePermissions.remove(player.getUniqueId());
+        loadPlayerRaceFromDB(player);
+
+        String race = getPlayerRace(player);
+        if (race == null || race.equalsIgnoreCase("NONE")) {
+            // Abrir menú un tick después
+            Bukkit.getScheduler().runTask(this, () -> {
+                RaceMenu.open(player);
+            });
+        } else {
+            applyRacePermissions(player);
+        }
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
+
+        playerRace.remove(event.getPlayer().getUniqueId());
+
+        PermissionAttachment attachment = racePermissions.remove(player.getUniqueId());
         if (attachment != null) {
             player.removeAttachment(attachment);
         }

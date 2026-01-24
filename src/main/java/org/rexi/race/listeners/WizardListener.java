@@ -6,8 +6,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.rexi.race.Race;
 
-import java.util.Set;
-
 public class WizardListener implements Listener {
 
     @EventHandler
