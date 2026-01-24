@@ -3,6 +3,7 @@ package org.rexi.race.menu;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -69,8 +70,11 @@ public class RaceMenuListener implements Listener {
 
         if (race != null && !race.equalsIgnoreCase("NONE")) return;
 
-        RaceMenu.open(player);
         player.sendMessage(deserialize("&cTienes que elegir una raza para continuar."));
+
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            RaceMenu.open((Player) event.getPlayer());
+        }, 1L);
     }
 
     private static final PlainTextComponentSerializer PLAIN = PlainTextComponentSerializer.plainText();
