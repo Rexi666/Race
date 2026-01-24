@@ -24,7 +24,6 @@ public class VampireListener implements Listener {
         );
 
         player.setHealth(newHealth);
-        player.sendMessage(Component.text("Te has curado al absorber la sangre de tu enemigo.").color(NamedTextColor.DARK_RED));
     }
 
     @EventHandler

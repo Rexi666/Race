@@ -50,7 +50,6 @@ public class AssassinListener implements Listener {
         if (isBackstab(player, victim_player)) {
             damage *= BACKSTAB_MULTIPLIER;
             spawnBackstabEffects(victim_player);
-            player.sendMessage(Component.text("Por la espalda!").color(NamedTextColor.DARK_RED));
         }
 
         lastHitTime.put(player.getUniqueId(), now);
