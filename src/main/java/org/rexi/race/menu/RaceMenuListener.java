@@ -52,6 +52,7 @@ public class RaceMenuListener implements Listener {
         if (race == null) return;
 
         plugin.setPlayerRace(player, race);
+        plugin.raceMenuOpen.remove(player.getUniqueId());
 
         player.closeInventory();
         player.sendMessage(deserialize("&aHas elegido la raza &e" + race + "&a correctamente."));
@@ -68,13 +69,14 @@ public class RaceMenuListener implements Listener {
 
         String race = plugin.getPlayerRace(player);
 
-        if (race != null && !race.equalsIgnoreCase("NONE")) return;
-
-        player.sendMessage(deserialize("&cTienes que elegir una raza para continuar."));
-
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            RaceMenu.open((Player) event.getPlayer());
-        }, 1L);
+        if (race == null || race.equalsIgnoreCase("NONE") || race.isEmpty()) {
+            Bukkit.getScheduler().runTaskLater(plugin.getInstance(), () -> {
+                String raceNext = plugin.getPlayerRace(player);
+                if (raceNext != null && !raceNext.equalsIgnoreCase("NONE") && !raceNext.isEmpty()) return;
+                RaceMenu.open(player);
+                player.sendMessage(deserialize("&cTienes que elegir una raza para continuar."));
+            }, 1L);
+        }
     }
 
     private static final PlainTextComponentSerializer PLAIN = PlainTextComponentSerializer.plainText();

@@ -22,9 +22,7 @@ import org.rexi.race.menu.RaceMenuListener;
 import org.rexi.race.utils.DatabaseManager;
 
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public final class Race extends JavaPlugin implements Listener {
 
@@ -107,9 +105,15 @@ public final class Race extends JavaPlugin implements Listener {
     public void loadPlayerRaceFromDB(Player player) {
         try {
             String chosenRace = databaseManager.getPlayerRace(player.getUniqueId().toString());
+
+            if (chosenRace == null || chosenRace.isBlank()) {
+                chosenRace = "NONE";
+            }
+
             playerRace.put(player.getUniqueId(), chosenRace);
         } catch (SQLException e) {
             getLogger().severe("Failed to load player class on the database: " + e.getMessage());
+            playerRace.put(player.getUniqueId(), "NONE");
         }
     }
 
@@ -134,18 +138,22 @@ public final class Race extends JavaPlugin implements Listener {
         racePermissions.put(player.getUniqueId(), attachment);
     }
 
+    private final Set<UUID> waitingForPack = new HashSet<>();
+    public final Set<UUID> raceMenuOpen = new HashSet<>();
+
+    public boolean hasRace(Player player) {
+        String race = getPlayerRace(player);
+        return race != null && !race.equalsIgnoreCase("NONE");
+    }
+
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
 
         loadPlayerRaceFromDB(player);
 
-        String race = getPlayerRace(player);
-        if (race == null || race.equalsIgnoreCase("NONE")) {
-            // Abrir menú un tick después
-            Bukkit.getScheduler().runTask(this, () -> {
-                RaceMenu.open(player);
-            });
+        if (!hasRace(player)) {
+            waitingForPack.add(player.getUniqueId());
         } else {
             applyRacePermissions(player);
         }
@@ -155,12 +163,20 @@ public final class Race extends JavaPlugin implements Listener {
     public void onResourcePackStatus(PlayerResourcePackStatusEvent event) {
         Player player = event.getPlayer();
 
-        if (event.getStatus() == PlayerResourcePackStatusEvent.Status.SUCCESSFULLY_LOADED) {
-            String race = getPlayerRace(player);
+        if (!waitingForPack.contains(player.getUniqueId())) return;
 
-            if (race == null || race.equalsIgnoreCase("NONE")) {
+        if (event.getStatus() == PlayerResourcePackStatusEvent.Status.SUCCESSFULLY_LOADED
+                || event.getStatus() == PlayerResourcePackStatusEvent.Status.DECLINED
+                || event.getStatus() == PlayerResourcePackStatusEvent.Status.FAILED_DOWNLOAD) {
+
+            waitingForPack.remove(player.getUniqueId());
+
+            if (!hasRace(player)) {
                 Bukkit.getScheduler().runTask(this, () -> {
-                    RaceMenu.open(player);
+                    if (!raceMenuOpen.contains(player.getUniqueId())) {
+                        raceMenuOpen.add(player.getUniqueId());
+                        RaceMenu.open(player);
+                    }
                 });
             }
         }
@@ -169,10 +185,13 @@ public final class Race extends JavaPlugin implements Listener {
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
+        UUID uuid = player.getUniqueId();
 
-        playerRace.remove(event.getPlayer().getUniqueId());
+        playerRace.remove(uuid);
+        raceMenuOpen.remove(uuid);
+        waitingForPack.remove(uuid);
 
-        PermissionAttachment attachment = racePermissions.remove(player.getUniqueId());
+        PermissionAttachment attachment = racePermissions.remove(uuid);
         if (attachment != null) {
             player.removeAttachment(attachment);
         }
