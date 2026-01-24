@@ -39,7 +39,40 @@ public class RaceCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        if (args.length != 3 || !args[0].equalsIgnoreCase("set")) {
+        if (args.length < 1) {
+            sender.sendMessage(deserialize("&eUso: /race set <jugador> <raza>"));
+            sender.sendMessage(deserialize("&eUso: /race menu <jugador>"));
+            return true;
+        }
+
+    /* =====================
+       /race menu <jugador>
+       ===================== */
+        if (args[0].equalsIgnoreCase("menu")) {
+
+            if (args.length != 2) {
+                sender.sendMessage(deserialize("&eUso: /race menu <jugador>"));
+                return true;
+            }
+
+            Player target = Bukkit.getPlayer(args[1]);
+            if (target == null) {
+                sender.sendMessage(deserialize("&cEl jugador no está conectado."));
+                return true;
+            }
+
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                org.rexi.race.menu.RaceMenu.open(target);
+            });
+
+            sender.sendMessage(deserialize("&aMenú de razas abierto para &e" + target.getName()));
+            return true;
+        }
+
+    /* =====================
+       /race set <jugador> <raza>
+       ===================== */
+        if (!args[0].equalsIgnoreCase("set") || args.length != 3) {
             sender.sendMessage(deserialize("&eUso: /race set <jugador> <raza>"));
             return true;
         }
@@ -52,7 +85,6 @@ public class RaceCommand implements CommandExecutor, TabCompleter {
 
         String race = args[2].toLowerCase();
 
-        // Aquí puedes validar razas si quieres
         List<String> validRaces = Arrays.asList("vampire", "wizard", "assassin", "tank");
         if (!validRaces.contains(race)) {
             sender.sendMessage(deserialize("&cRaza inválida. Disponibles: " + String.join(", ", validRaces)));
@@ -80,10 +112,10 @@ public class RaceCommand implements CommandExecutor, TabCompleter {
         List<String> completions = new ArrayList<>();
 
         if (args.length == 1) {
-            completions.add("set");
+            completions.addAll(Arrays.asList("set", "menu"));
         }
 
-        if (args.length == 2 && args[0].equalsIgnoreCase("set")) {
+        if (args.length == 2 && (args[0].equalsIgnoreCase("set") || args[0].equalsIgnoreCase("menu"))) {
             for (Player p : Bukkit.getOnlinePlayers()) {
                 completions.add(p.getName());
             }

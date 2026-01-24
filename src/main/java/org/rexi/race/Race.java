@@ -8,6 +8,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerResourcePackStatusEvent;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.rexi.race.commands.RaceCommand;
@@ -147,6 +148,21 @@ public final class Race extends JavaPlugin implements Listener {
             });
         } else {
             applyRacePermissions(player);
+        }
+    }
+
+    @EventHandler
+    public void onResourcePackStatus(PlayerResourcePackStatusEvent event) {
+        Player player = event.getPlayer();
+
+        if (event.getStatus() == PlayerResourcePackStatusEvent.Status.SUCCESSFULLY_LOADED) {
+            String race = getPlayerRace(player);
+
+            if (race == null || race.equalsIgnoreCase("NONE")) {
+                Bukkit.getScheduler().runTask(this, () -> {
+                    RaceMenu.open(player);
+                });
+            }
         }
     }
 
