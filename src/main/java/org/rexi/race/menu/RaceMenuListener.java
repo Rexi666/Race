@@ -53,9 +53,10 @@ public class RaceMenuListener implements Listener {
 
         plugin.setPlayerRace(player, race);
         plugin.raceMenuOpen.remove(player.getUniqueId());
+        String raceName = plugin.getConfig().getString("races."+race, race);
 
         player.closeInventory();
-        player.sendMessage(deserialize("&aHas elegido la raza &e" + race + "&a correctamente."));
+        player.sendMessage(deserialize("&aHas elegido la raza &e" + raceName + "&a correctamente."));
     }
 
     @EventHandler

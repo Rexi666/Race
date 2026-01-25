@@ -20,6 +20,7 @@ import org.rexi.race.listeners.WizardListener;
 import org.rexi.race.menu.RaceMenu;
 import org.rexi.race.menu.RaceMenuListener;
 import org.rexi.race.utils.DatabaseManager;
+import org.rexi.race.utils.Placeholders;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -28,6 +29,7 @@ public final class Race extends JavaPlugin implements Listener {
 
     private DatabaseManager databaseManager;
     private static Race instance;
+    private Placeholders expansion;
 
     public final Map<UUID, String> playerRace= new HashMap<>();
     public final Map<UUID, PermissionAttachment> racePermissions = new HashMap<>();
@@ -69,6 +71,18 @@ public final class Race extends JavaPlugin implements Listener {
                 200L // cada 10 segundos
         );
 
+        // Placeholders
+
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null &&
+                Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+
+            this.expansion = new Placeholders(this);
+            this.expansion.register();
+            getLogger().info("PlaceholderAPI detectaded.");
+        } else {
+            getLogger().warning("PlaceholderAPI not detected.");
+        }
+
         Bukkit.getConsoleSender().sendMessage(Component.text("Race se ha activado correctamente").color(NamedTextColor.GREEN));
         Bukkit.getConsoleSender().sendMessage(Component.text("Gracias por usar plugins de Rexi666 :D").color(NamedTextColor.BLUE));
     }
@@ -96,11 +110,6 @@ public final class Race extends JavaPlugin implements Listener {
     public String getPlayerRace(Player player) {
         return playerRace.getOrDefault(player.getUniqueId(), "NONE");
     }
-
-    // vampire
-    // wizard
-    // assassin
-    // tank
 
     public void loadPlayerRaceFromDB(Player player) {
         try {

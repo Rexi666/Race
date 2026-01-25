@@ -93,8 +93,10 @@ public class RaceCommand implements CommandExecutor, TabCompleter {
 
         plugin.setPlayerRace(target, race);
 
-        sender.sendMessage(deserialize("&aHas establecido la raza de &e" + target.getName() + " &aa &b" + race));
-        target.sendMessage(deserialize("&aTu raza ha sido cambiada a &b" + race));
+        String raceName = plugin.getConfig().getString("races."+race, race);
+
+        sender.sendMessage(deserialize("&aHas establecido la raza de &e" + target.getName() + " &aa &b" + raceName));
+        target.sendMessage(deserialize("&aTu raza ha sido cambiada a &b" + raceName));
 
         return true;
     }

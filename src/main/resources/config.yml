@@ -6,3 +6,9 @@ database:
     database: "dungeons" #MySQL database name.
     username: "root" #MySQL username.
     password: "" #MySQL password.
+
+races:
+  vampire: "vampire"
+  wizard: "wizard"
+  assassin: "assassin"
+  tank: "tank"
